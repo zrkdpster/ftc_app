@@ -6,20 +6,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 public class zDemoArcade extends OpMode {
-
-    final double UP_POSITION = 0.0;
-    final double DOWN_POSITION = 1.0;
-
-    DcMotor leftFrontMotor;
-    DcMotor rightFrontMotor;
+    
+    DcMotor leftMotor;
+    DcMotor rightMotor;
 
     @Override
     public void init() {
 
-        leftFrontMotor = hardwareMap.dcMotor.get("left_front");
-        rightFrontMotor = hardwareMap.dcMotor.get("right_front");
+        leftMotor = hardwareMap.dcMotor.get("left");
+        rightMotor = hardwareMap.dcMotor.get("right");
 
-        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);
 
     }
 
@@ -53,9 +50,9 @@ public class zDemoArcade extends OpMode {
         leftPower = Range.clip(leftPower, -1, 1);
         rightPower = Range.clip(rightPower, -1, 1);
 
-        leftFrontMotor.setPower(leftPower);
+        leftMotor.setPower(leftPower);
 
-        rightFrontMotor.setPower(rightPower);
+        rightMotor.setPower(rightPower);
 
 
     }
