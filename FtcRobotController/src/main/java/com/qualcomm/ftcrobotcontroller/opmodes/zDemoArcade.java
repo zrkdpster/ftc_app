@@ -6,10 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 public class zDemoArcade extends OpMode {
-
-    final double UP_POSITION = 0.0;
-    final double DOWN_POSITION = 1.0;
-
+    
     DcMotor leftMotor;
     DcMotor rightMotor;
 
