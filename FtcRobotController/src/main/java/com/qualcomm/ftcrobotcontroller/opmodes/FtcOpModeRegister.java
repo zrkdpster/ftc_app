@@ -54,18 +54,14 @@ public class FtcOpModeRegister implements OpModeRegister {
      *
      * If two or more op modes are registered with the same name, the app will display an error.
      */
-
-   // manager.register("NullOp", NullOp.class);
-
-
-    manager.register("NullOp", NullOp.class);
-    manager.register ("jjkdDemoTank", jjkdDemoTank.class);
-    manager.register ("jjkdDemoArcade", jjkdDemoArcade.class);
-    manager.register("zDemoArcade", zDemoArcade.class);
+      manager.register("NullOp", NullOp.class);
+      manager.register ("jjkdDemoTank", jjkdDemoTank.class);
+      manager.register ("jjkdDemoArcade", jjkdDemoArcade.class);
+      manager.register("zDemoArcade", zDemoArcade.class);
       manager.register("zDemoTank", zDemoTank.class);
-   // manager.register("K9Line", K9Line.class);
-    //manager.register ("PushBotAuto", PushBotAuto.class);
-   // manager.register ("PushBotManual", PushBotManual.class);
+      // manager.register("K9Line", K9Line.class);
+      //manager.register ("PushBotAuto", PushBotAuto.class);
+      // manager.register ("PushBotManual", PushBotManual.class);
 
 
 
