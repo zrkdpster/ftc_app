@@ -1,5 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.ftcrobotcontroller.AdafruitIMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -8,6 +9,14 @@ public class zDemoTank extends OpMode {
 
     DcMotor leftMotor;
     DcMotor rightMotor;
+
+    Servo jjDumper;
+    Servo redNoodle;
+    Servo blueNoodle;
+
+    AdafruitIMU boschBNO055;
+
+
 
     @Override
     public void init() {
