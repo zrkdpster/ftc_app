@@ -3,6 +3,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.ftcrobotcontroller.AdafruitIMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -27,6 +28,9 @@ public class TeleOp extends OpMode {
     public int elbowMotorEncodercurrent;
     public int shoulderMotorEncodercurrent;
 
+    DcMotorController.RunMode elbowRunMode;
+    DcMotorController.RunMode shoulderRunMode;
+
     public double tankMaxPower      = 1.0;
     public double arcadeMaxPower    = 1.0;
 
@@ -42,6 +46,20 @@ public class TeleOp extends OpMode {
         init_sensors();
 
     }
+
+
+    /*
+  * Code to run when the op mode is first enabled goes here
+  * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
+  */
+    @Override
+    public void start() {
+
+        elbowMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        shoulderMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+    }
+
 //initialize drivetrain
     public void init_motors() {
         leftMotor = hardwareMap.dcMotor.get("left");
@@ -55,7 +73,7 @@ public class TeleOp extends OpMode {
         //xMotor.setDirection(DcMotor.Direction.REVERSE); ******might need
 
     }
-
+//initialize servos
     public void init_servos() {
         dumperServo = hardwareMap.servo.get("dumper");
         redNoodleServo = hardwareMap.servo.get("redNoodle");
@@ -69,7 +87,7 @@ public class TeleOp extends OpMode {
 
     void handle_drivetrain() {
 
-        if (arcademode) {    //  handle arcade mode here
+        if (arcademode) {    //  code for arcade mode here
 
             telemetry.addData("Drive: ", "Arcade Mode");
 
@@ -106,7 +124,7 @@ public class TeleOp extends OpMode {
 
             rightMotor.setPower(rightPower * arcadeMaxPower);
 
-        } else {            //  handle tank mode here
+        } else {            //  code for tank mode here
 
             telemetry.addData("Drive: ", "Tank Mode");
 
@@ -138,7 +156,7 @@ public class TeleOp extends OpMode {
         }
 
     }
-
+// code that switches between arcade and tank modes
     public void handle_mode_commands() {
 
         if (gamepad1.left_bumper) {
@@ -153,7 +171,11 @@ public class TeleOp extends OpMode {
 
         }
     }
+   // code to run the arm
     public void handle_arm() {
+
+        elbowMotor.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);;
+        shoulderMotor.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
         if (gamepad1.dpad_up){
             telemetry.addData("Controller: ", "dpad_up");
@@ -171,7 +193,11 @@ public class TeleOp extends OpMode {
             telemetry.addData("Controller: ", "dpad_uright");
             shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - incremment);
         }
+
+        elbowMotor.setPower(0.1);
+        shoulderMotor.setPower(0.1);
     }
+    // code to exicute the servo program
  public void handle_servos() {
      if (gamepad1.a){
          telemetry.addData("Controller: ", "a");
