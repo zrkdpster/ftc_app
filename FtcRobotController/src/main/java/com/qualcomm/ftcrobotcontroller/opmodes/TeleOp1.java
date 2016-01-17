@@ -7,9 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-/**
- * Created by robot on 12/11/2015.
- */
+
+ //Created by robot on 12/11/2015. *****************************************************************
 public class TeleOp1 extends OpMode {
    // define motors
     DcMotor leftMotor;
