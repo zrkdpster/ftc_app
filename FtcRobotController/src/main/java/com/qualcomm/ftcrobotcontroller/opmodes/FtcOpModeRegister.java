@@ -58,7 +58,7 @@ public class FtcOpModeRegister implements OpModeRegister {
    //   manager.register ("AdafruitRGBExample", AdafruitRGBExample.class);
    //   manager.register ("IMUtest", IMUtest.class);
 
-    manager.register("TeleOp", TeleOp.class);
+    manager.register("TeleOp", TeleOp1.class);
     manager.register("zDemoArcade", zDemoArcade.class);
       manager.register("zDemoTank", zDemoTank.class);
       // manager.register("K9Line", K9Line.class);
