@@ -196,40 +196,35 @@ public class TeleOp1 extends OpMode {
     }
    // code to run the arm
     public void handle_arm() {
-
-        double shoulder = gamepad2.left_stick_x;
-        double tape = gamepad2.right_stick_x;
-
+        tapeMotor.setPower(tapeMaxPower);
+        shoulderMotor.setPower(shoulderMaxPower);
+        double shoulder = gamepad2.left_stick_y;
+        double tape = gamepad2.right_stick_y;
 
         if (shoulder > Positive_Dead_Zone){
             shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() + increment);
-            telemetry.addData("Controller 2 : ", "Shoulder up");
-            telemetry.addData("Controller 2 : ", shoulderMotorEncodercurrent);
+            telemetry.addData("shoulder : ", "Shoulder up   " + System.out.format("%.2f",shoulderMotorEncodercurrent));
         } else if (shoulder < Negative_Dead_Zone){
             if (shoulderMotor.getCurrentPosition() < Hard_Stop) {
                 // don't go backwards beyond starting position
             } else {
                 shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - increment);
-                telemetry.addData("Controller 2 : ", "Shoulder down");
-                telemetry.addData("Controller 2 : ", shoulderMotorEncodercurrent);
+                telemetry.addData("shoulder : ", "Shoulder down " + System.out.format("%.2f",shoulderMotorEncodercurrent));
             }
         }
 
         if (tape > Positive_Dead_Zone){
             tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() + increment);
-            telemetry.addData("Controller 2 : ", "tape up");
-            telemetry.addData("Controller 2 : ", tapeMotorEncodercurrent);
+            telemetry.addData("tape : ", "tape up   " + System.out.format("%.2f",tapeMotorEncodercurrent));
         } else if (tape < Negative_Dead_Zone) {
             if (tapeMotor.getCurrentPosition() < Hard_Stop) {
             } else {
                 tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - increment);
-                telemetry.addData("Controller 2 : ", "tape down");
-                telemetry.addData("Controller 2 : ", tapeMotorEncodercurrent);
+                telemetry.addData("tape : ", "tape down "+ System.out.format("%.2f",tapeMotorEncodercurrent));
             }
         }
 
-        tapeMotor.setPower(tapeMaxPower);
-        shoulderMotor.setPower(shoulderMaxPower);
+
     }
     // code to control all the various servos
  public void handle_servos() {
@@ -243,19 +238,19 @@ public class TeleOp1 extends OpMode {
      }
 
      if (redCount == Math.floor(redCount / 2)*2) {
-         telemetry.addData("Controller 2 : ", "Red noodle down");
+         telemetry.addData("noodle : ", "Red noodle down");
          redNoodleServo.setPosition(0.0);
 
      } else {
-         telemetry.addData("Controller 2 : ", "Red noodle up");
+         telemetry.addData("noodle : ", "Red noodle up");
          redNoodleServo.setPosition(1.0);
      }
 
     if (blueCount == Math.floor(blueCount / 2)*2) {
-         telemetry.addData("Controller 2 : ", " Blue noodle down");
+         telemetry.addData("noodle : ", " Blue noodle down");
          blueNoodleServo.setPosition(1.0);
      } else {
-        telemetry.addData("Controller 2 : ", " Blue noodle up");
+        telemetry.addData("noodle : ", " Blue noodle up");
         blueNoodleServo.setPosition(0.0);
      }
 
