@@ -50,6 +50,11 @@ public class TeleOp1 extends OpMode {
     public double Negative_Dead_Zone    = -0.05;
     public int Hard_Stop                = 5;
 
+     public int SRlock = 1;
+     public int TRlock = 1;
+     public int SRunlock = 0;
+     public int TRunlock = 0;
+    public int unlockincrement = 5;
     @Override
     public void init() {
         arcademode = false;
@@ -101,7 +106,7 @@ public class TeleOp1 extends OpMode {
         blueNoodleServo = hardwareMap.servo.get("blueNoodle");
         shoulderRatchet = hardwareMap.servo.get("shoulderRatchet");
         tapeRatchet = hardwareMap.servo.get("tapeRatchet");
-
+        // need to set lock state of ratchets here**********************************************
         // need to send servos to 'home' positions here*****************************************
     }
 
@@ -255,12 +260,54 @@ public class TeleOp1 extends OpMode {
      }
 
      // ratchet control goes here *************************************************
+     /*
+      lock
+      if the a/x button is pressed check the state
+      if state locked is true return
+      if the state locked is false move the servo into the locked position
 
+      unlock
+      when the b/y button is pressed check the state
+      if the state is unlocked return
+      if the state is locked run the motor back a couple of ticks move the servo into the unlocked position
+     */
+     // lock servos
+     if (gamepad2.a){
+         if (shoulderRatchetLocked == true){
 
+         }
+          else {
+             shoulderRatchet.setPosition(SRlock);
+         }
+       }
 
+     if (gamepad2.x){
+         if (tapeRatchetLocked == true){
 
+         }
+         else {
+             tapeRatchet.setPosition(TRlock);
+         }
+     }
+    // unlock servos
+     if (gamepad2.b){
+         if (shoulderRatchetLocked == false){
 
+         }
+         else {
+             shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - unlockincrement );
+             shoulderRatchet.setPosition(SRunlock);
+         }
+     }
+     if (gamepad2.y){
+         if (tapeRatchetLocked == false){
 
+         }
+         else {
+             tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - unlockincrement );
+             tapeRatchet.setPosition(TRunlock);
+         }
+     }
 
  }
 
