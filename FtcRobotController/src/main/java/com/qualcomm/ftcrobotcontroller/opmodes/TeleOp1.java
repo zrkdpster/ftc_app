@@ -24,9 +24,7 @@ public class TeleOp1 extends OpMode {
 
     public boolean arcademode;
 
-
-    public int tapeMotorEncodercurrent;
-    public int shoulderMotorEncodercurrent;
+     public int shoulderMotorEncodercurrent;
 
     public int blueCount;
     public int redCount;
@@ -45,11 +43,8 @@ public class TeleOp1 extends OpMode {
 
     public double maxXJoystick          = 1.0;
 
-    public int increment = 15;
     public double Positive_Dead_Zone    = 0.05;
     public double Negative_Dead_Zone    = -0.05;
-    public int Hard_Stop                = 5;
-
 
      public int shoulder_increment = 5;
      public int shoulder_top_limit = 1000;
@@ -70,9 +65,8 @@ public class TeleOp1 extends OpMode {
      public double tapeRatchetOpen = 0.25;
      public double tapeRatchedClosed = 1.0;
 
-     public int waitForNextRed;
-     public int waitForNextBlue;
-     public int debounceCycles = 5;
+     public boolean leftPressedLastTime;
+     public boolean rightPressedLastTime;
 
      @Override
     public void init() {
@@ -91,7 +85,7 @@ public class TeleOp1 extends OpMode {
     @Override
     public void start() {
 
-        tapeMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        tapeMotor.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
         shoulderMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
     }
@@ -109,7 +103,7 @@ public class TeleOp1 extends OpMode {
     public void init_motors() {
         leftMotor = hardwareMap.dcMotor.get("left");
         rightMotor = hardwareMap.dcMotor.get("right");
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor.setDirection(DcMotor.Direction.REVERSE);
         arcademode = false;
         telemetry.addData("Drive: ", drive_mode(arcademode));
 //initialize arm
@@ -223,8 +217,8 @@ public class TeleOp1 extends OpMode {
     }
    // code to run the arm
     public void handle_arm() {
-        tapeMotor.setPower(tapeMaxPower);
-        shoulderMotor.setPower(shoulderMaxPower);
+        tapeMotor.setPower(0);
+        shoulderMotor.setPower(0);
         double shoulder = gamepad2.left_stick_y;
         double tape = gamepad2.right_stick_y;
 
@@ -232,40 +226,30 @@ public class TeleOp1 extends OpMode {
             if ((shoulderMotor.getCurrentPosition() + shoulder_increment) < shoulder_top_limit) {
                 // don't go forward past maximum position
                 shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() + shoulder_increment);
+                shoulderMotor.setPower(shoulderMaxPower);
                 telemetry.addData("shoulder : ", "Shoulder up   " + System.out.format("%d",shoulderMotorEncodercurrent));
             } else {
                 shoulderMotor.setTargetPosition(shoulder_top_limit);
+                shoulderMotor.setPower(shoulderMaxPower);
                 telemetry.addData("shoulder : ", "Shoulder up   " + System.out.format("%d",shoulderMotorEncodercurrent));
             }
         } else if (shoulder < Negative_Dead_Zone){
             if ((shoulderMotor.getCurrentPosition() - shoulder_increment) < shoulder_bottom_limit) {
                 // don't go backwards beyond starting position
                 shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - shoulder_increment);
+                shoulderMotor.setPower(shoulderMaxPower);
                 telemetry.addData("shoulder : ", "Shoulder down " + System.out.format("%d",shoulderMotorEncodercurrent));
             } else {
                 shoulderMotor.setTargetPosition(shoulder_bottom_limit);
+                shoulderMotor.setPower(shoulderMaxPower);
                 telemetry.addData("shoulder : ", "Shoulder down " + System.out.format("%d",shoulderMotorEncodercurrent));
             }
         }
 
         if (tape > Positive_Dead_Zone){
-            if ((tapeMotor.getCurrentPosition() + tape_increment) < tape_top_limit) {
-                // don't go forward past maximum position
-                tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() + tape_increment);
-                telemetry.addData("tape : ", "tape up   " + System.out.format("%d",tapeMotorEncodercurrent));
-            } else {
-                tapeMotor.setTargetPosition(tape_top_limit);
-                telemetry.addData("tape : ", "tape up   " + System.out.format("%d",tapeMotorEncodercurrent));
-            }
+
         } else if (tape < Negative_Dead_Zone){
-            if ((tapeMotor.getCurrentPosition() - tape_increment) < tape_bottom_limit) {
-                // don't go backwards beyond starting position
-                tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - tape_increment);
-                telemetry.addData("tape : ", "tape down " + System.out.format("%d",tapeMotorEncodercurrent));
-            } else {
-                tapeMotor.setTargetPosition(tape_bottom_limit);
-                telemetry.addData("tape : ", "tape down " + System.out.format("%d",tapeMotorEncodercurrent));
-            }
+
         }
 
 
@@ -274,35 +258,50 @@ public class TeleOp1 extends OpMode {
     // code to control all the various servos
  public void handle_servos() {
 
-     if (gamepad2.right_bumper) {
-         if (waitForNextRed < 1) {
-             ++redCount;
-             waitForNextRed = debounceCycles;
-         }
-     }
-
-     if (gamepad2.left_bumper) {
-         if (waitForNextBlue < 1) {
+     if (gamepad2.left_bumper){
+         telemetry.addData("Left bumper : " , "true");
+         if (leftPressedLastTime) {
+             //don't do anything more
+         } else {
+             // wasn't pressed last time, so toggle left
              ++blueCount;
-             waitForNextBlue = debounceCycles;
+             telemetry.addData("Left bumper count : ", blueCount);
+             leftPressedLastTime = true;
          }
+     } else {
+         leftPressedLastTime = false;
+         telemetry.addData("Left bumper : " , "false");
+     }
+     if (gamepad2.right_bumper) {
+         telemetry.addData("Right bumper : ", "true");
+         if (rightPressedLastTime) {
+             //don't do anything more
+         } else {
+             // wasn't pressed last time, so toggle right
+             ++redCount;
+             telemetry.addData("Right bumper count : ", redCount);
+             rightPressedLastTime = true;
+         }
+     } else {
+         rightPressedLastTime = false;
+         telemetry.addData("Right bumper : ", "false");
      }
 
          if (redCount == Math.floor(redCount / 2) * 2) {
 
-             telemetry.addData("noodle : ", "Red noodle down");
+             telemetry.addData("noodle1 : ", "Red noodle down");
              redNoodleServo.setPosition(redNoodleDown);
 
          } else {
-             telemetry.addData("noodle : ", "Red noodle up");
+             telemetry.addData("noodle1 : ", "Red noodle up");
              redNoodleServo.setPosition(redNoodleUp);
          }
 
          if (blueCount == Math.floor(blueCount / 2) * 2) {
-             telemetry.addData("noodle : ", " Blue noodle down");
+             telemetry.addData("noodle2 : ", " Blue noodle down");
              blueNoodleServo.setPosition(blueNoodleDown);
          } else {
-             telemetry.addData("noodle : ", " Blue noodle up");
+             telemetry.addData("noodle2 : ", " Blue noodle up");
              blueNoodleServo.setPosition(blueNoodleUp);
          }
 
@@ -359,20 +358,9 @@ public class TeleOp1 extends OpMode {
      }
 
 
-
-     public void handle_debounce() {
-         if(waitForNextRed > 0){
-             waitForNextRed--;
-         }
-         if(waitForNextBlue > 0){
-             waitForNextBlue--;
-         }
-     }
-
-
 public void handle_debug_telemetry() {
     telemetry.addData("ShoulderPos : ", shoulderMotor.getCurrentPosition());
-    telemetry.addData("TapePos : ", tapeMotor.getCurrentPosition());
+    telemetry.addData("LeftPos : ", tapeMotor.getCurrentPosition());
 
 
 }
@@ -380,7 +368,6 @@ public void handle_debug_telemetry() {
 
     @Override
     public void loop() {
-        handle_debounce();
         handle_drivetrain();
         handle_mode_commands();
         handle_servos();
