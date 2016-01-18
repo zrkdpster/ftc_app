@@ -50,12 +50,31 @@ public class TeleOp1 extends OpMode {
     public double Negative_Dead_Zone    = -0.05;
     public int Hard_Stop                = 5;
 
-     public int SRlock = 1;
-     public int TRlock = 1;
-     public int SRunlock = 0;
-     public int TRunlock = 0;
-    public int unlockincrement = 5;
-    @Override
+
+     public int shoulder_increment = 5;
+     public int shoulder_top_limit = 1000;
+     public int shoulder_bottom_limit = 5;
+
+     public int tape_increment = 5;
+     public int tape_top_limit = 1000;
+     public int tape_bottom_limit = 5;
+
+     public int unlockincrement = 5;
+
+     public double redNoodleDown  = 1.0;
+     public double redNoodleUp    = 0.0;
+     public double blueNoodleDown = 0.0;
+     public double blueNoodleUp   = 1.0;
+     public double shoulderRatchetOpen = 1.0;
+     public double shoulderRatchetClosed = 0.0;
+     public double tapeRatchetOpen = 0.25;
+     public double tapeRatchedClosed = 1.0;
+
+     public int waitForNextRed;
+     public int waitForNextBlue;
+     public int debounceCycles = 5;
+
+     @Override
     public void init() {
         arcademode = false;
         init_motors();
@@ -106,8 +125,11 @@ public class TeleOp1 extends OpMode {
         blueNoodleServo = hardwareMap.servo.get("blueNoodle");
         shoulderRatchet = hardwareMap.servo.get("shoulderRatchet");
         tapeRatchet = hardwareMap.servo.get("tapeRatchet");
-        // need to set lock state of ratchets here**********************************************
-        // need to send servos to 'home' positions here*****************************************
+       redNoodleServo.setPosition(redNoodleDown);
+        blueNoodleServo.setPosition(blueNoodleDown);
+        tapeRatchet.setPosition(tapeRatchetOpen);
+        shoulderRatchet.setPosition(shoulderRatchetOpen);
+
     }
 
     public void init_sensors() {
@@ -207,59 +229,84 @@ public class TeleOp1 extends OpMode {
         double tape = gamepad2.right_stick_y;
 
         if (shoulder > Positive_Dead_Zone){
-            shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() + increment);
-            telemetry.addData("shoulder : ", "Shoulder up   " + System.out.format("%.2f",shoulderMotorEncodercurrent));
-        } else if (shoulder < Negative_Dead_Zone){
-            if (shoulderMotor.getCurrentPosition() < Hard_Stop) {
-                // don't go backwards beyond starting position
+            if ((shoulderMotor.getCurrentPosition() + shoulder_increment) < shoulder_top_limit) {
+                // don't go forward past maximum position
+                shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() + shoulder_increment);
+                telemetry.addData("shoulder : ", "Shoulder up   " + System.out.format("%d",shoulderMotorEncodercurrent));
             } else {
-                shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - increment);
-                telemetry.addData("shoulder : ", "Shoulder down " + System.out.format("%.2f",shoulderMotorEncodercurrent));
+                shoulderMotor.setTargetPosition(shoulder_top_limit);
+                telemetry.addData("shoulder : ", "Shoulder up   " + System.out.format("%d",shoulderMotorEncodercurrent));
+            }
+        } else if (shoulder < Negative_Dead_Zone){
+            if ((shoulderMotor.getCurrentPosition() - shoulder_increment) < shoulder_bottom_limit) {
+                // don't go backwards beyond starting position
+                shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - shoulder_increment);
+                telemetry.addData("shoulder : ", "Shoulder down " + System.out.format("%d",shoulderMotorEncodercurrent));
+            } else {
+                shoulderMotor.setTargetPosition(shoulder_bottom_limit);
+                telemetry.addData("shoulder : ", "Shoulder down " + System.out.format("%d",shoulderMotorEncodercurrent));
             }
         }
 
         if (tape > Positive_Dead_Zone){
-            tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() + increment);
-            telemetry.addData("tape : ", "tape up   " + System.out.format("%.2f",tapeMotorEncodercurrent));
-        } else if (tape < Negative_Dead_Zone) {
-            if (tapeMotor.getCurrentPosition() < Hard_Stop) {
+            if ((tapeMotor.getCurrentPosition() + tape_increment) < tape_top_limit) {
+                // don't go forward past maximum position
+                tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() + tape_increment);
+                telemetry.addData("tape : ", "tape up   " + System.out.format("%d",tapeMotorEncodercurrent));
             } else {
-                tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - increment);
-                telemetry.addData("tape : ", "tape down "+ System.out.format("%.2f",tapeMotorEncodercurrent));
+                tapeMotor.setTargetPosition(tape_top_limit);
+                telemetry.addData("tape : ", "tape up   " + System.out.format("%d",tapeMotorEncodercurrent));
+            }
+        } else if (tape < Negative_Dead_Zone){
+            if ((tapeMotor.getCurrentPosition() - tape_increment) < tape_bottom_limit) {
+                // don't go backwards beyond starting position
+                tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - tape_increment);
+                telemetry.addData("tape : ", "tape down " + System.out.format("%d",tapeMotorEncodercurrent));
+            } else {
+                tapeMotor.setTargetPosition(tape_bottom_limit);
+                telemetry.addData("tape : ", "tape down " + System.out.format("%d",tapeMotorEncodercurrent));
             }
         }
+
 
 
     }
     // code to control all the various servos
  public void handle_servos() {
 
-     if (gamepad2.right_bumper){
-         ++redCount;
+     if (gamepad2.right_bumper) {
+         if (waitForNextRed < 1) {
+             ++redCount;
+             waitForNextRed = debounceCycles;
+         }
      }
 
-     if (gamepad2.left_bumper){
-         ++blueCount;
+     if (gamepad2.left_bumper) {
+         if (waitForNextBlue < 1) {
+             ++blueCount;
+             waitForNextBlue = debounceCycles;
+         }
      }
 
-     if (redCount == Math.floor(redCount / 2)*2) {
-         telemetry.addData("noodle : ", "Red noodle down");
-         redNoodleServo.setPosition(0.0);
+         if (redCount == Math.floor(redCount / 2) * 2) {
 
-     } else {
-         telemetry.addData("noodle : ", "Red noodle up");
-         redNoodleServo.setPosition(1.0);
-     }
+             telemetry.addData("noodle : ", "Red noodle down");
+             redNoodleServo.setPosition(redNoodleDown);
 
-    if (blueCount == Math.floor(blueCount / 2)*2) {
-         telemetry.addData("noodle : ", " Blue noodle down");
-         blueNoodleServo.setPosition(1.0);
-     } else {
-        telemetry.addData("noodle : ", " Blue noodle up");
-        blueNoodleServo.setPosition(0.0);
-     }
+         } else {
+             telemetry.addData("noodle : ", "Red noodle up");
+             redNoodleServo.setPosition(redNoodleUp);
+         }
 
-     // ratchet control goes here *************************************************
+         if (blueCount == Math.floor(blueCount / 2) * 2) {
+             telemetry.addData("noodle : ", " Blue noodle down");
+             blueNoodleServo.setPosition(blueNoodleDown);
+         } else {
+             telemetry.addData("noodle : ", " Blue noodle up");
+             blueNoodleServo.setPosition(blueNoodleUp);
+         }
+
+         // ratchet control goes here *************************************************
      /*
       lock
       if the a/x button is pressed check the state
@@ -271,54 +318,75 @@ public class TeleOp1 extends OpMode {
       if the state is unlocked return
       if the state is locked run the motor back a couple of ticks move the servo into the unlocked position
      */
-     // lock servos
-     if (gamepad2.a){
-         if (shoulderRatchetLocked == true){
+         // lock servos
+         if (gamepad2.a) {
+             if (shoulderRatchetLocked) {
 
+             } else {
+                 shoulderRatchet.setPosition(shoulderRatchetClosed);
+                 shoulderRatchetLocked = true;
+             }
          }
-          else {
-             shoulderRatchet.setPosition(SRlock);
-         }
-       }
 
-     if (gamepad2.x){
-         if (tapeRatchetLocked == true){
+         if (gamepad2.x) {
+             if (tapeRatchetLocked) {
 
+             } else {
+                 tapeRatchet.setPosition(tapeRatchedClosed);
+                 tapeRatchetLocked = true;
+             }
          }
-         else {
-             tapeRatchet.setPosition(TRlock);
+         // unlock servos
+         if (gamepad2.b) {
+             if (!shoulderRatchetLocked) {
+
+             } else {
+             //    shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - unlockincrement);
+                 shoulderRatchet.setPosition(shoulderRatchetOpen);
+                 shoulderRatchetLocked = false;
+             }
+         }
+         if (gamepad2.y) {
+             if (!tapeRatchetLocked) {
+
+             } else {
+             //    tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - unlockincrement);
+                 tapeRatchet.setPosition(tapeRatchetOpen);
+                 tapeRatchetLocked = false;
+             }
+         }
+
+     }
+
+
+
+     public void handle_debounce() {
+         if(waitForNextRed > 0){
+             waitForNextRed--;
+         }
+         if(waitForNextBlue > 0){
+             waitForNextBlue--;
          }
      }
-    // unlock servos
-     if (gamepad2.b){
-         if (shoulderRatchetLocked == false){
 
-         }
-         else {
-             shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - unlockincrement );
-             shoulderRatchet.setPosition(SRunlock);
-         }
-     }
-     if (gamepad2.y){
-         if (tapeRatchetLocked == false){
 
-         }
-         else {
-             tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - unlockincrement );
-             tapeRatchet.setPosition(TRunlock);
-         }
-     }
+public void handle_debug_telemetry() {
+    telemetry.addData("ShoulderPos : ", shoulderMotor.getCurrentPosition());
+    telemetry.addData("TapePos : ", tapeMotor.getCurrentPosition());
 
- }
+
+}
 
 
     @Override
     public void loop() {
-
+        handle_debounce();
         handle_drivetrain();
         handle_mode_commands();
         handle_servos();
         handle_arm();
+        handle_debug_telemetry();
+
 
     }
 }

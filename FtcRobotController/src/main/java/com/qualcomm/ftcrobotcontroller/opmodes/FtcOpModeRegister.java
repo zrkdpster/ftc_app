@@ -59,8 +59,8 @@ public class FtcOpModeRegister implements OpModeRegister {
    //   manager.register ("IMUtest", IMUtest.class);
 
     manager.register("TeleOp", TeleOp1.class);
-    manager.register("zDemoArcade", zDemoArcade.class);
-      manager.register("zDemoTank", zDemoTank.class);
+   // manager.register("zDemoArcade", zDemoArcade.class);
+    //  manager.register("zDemoTank", zDemoTank.class);
       // manager.register("K9Line", K9Line.class);
       //manager.register ("PushBotAuto", PushBotAuto.class);
       // manager.register ("PushBotManual", PushBotManual.class);
@@ -70,7 +70,7 @@ public class FtcOpModeRegister implements OpModeRegister {
      /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
-    manager.register("MR Gyro Test", MRGyroTest.class);
+   // manager.register("MR Gyro Test", MRGyroTest.class);
 
     //manager.register("AdafruitRGBExample", AdafruitRGBExample.class);
     //manager.register("ColorSensorDriver", ColorSensorDriver.class);
