@@ -50,11 +50,12 @@ public class TeleOp1 extends OpMode {
      public int shoulder_top_limit = 1000;
      public int shoulder_bottom_limit = 5;
 
-     public int tape_increment = 5;
+    /* public int tape_increment = 5;
      public int tape_top_limit = 1000;
      public int tape_bottom_limit = 5;
 
      public int unlockincrement = 5;
+     */
 
      public double redNoodleDown  = 1.0;
      public double redNoodleUp    = 0.0;
@@ -220,7 +221,7 @@ public class TeleOp1 extends OpMode {
         tapeMotor.setPower(0);
         shoulderMotor.setPower(0);
         double shoulder = gamepad2.left_stick_y;
-        double tape = gamepad2.right_stick_y;
+        //double tape = gamepad2.right_stick_y;
 
         if (shoulder > Positive_Dead_Zone){
             if ((shoulderMotor.getCurrentPosition() + shoulder_increment) < shoulder_top_limit) {
@@ -246,27 +247,43 @@ public class TeleOp1 extends OpMode {
             }
         }
 
-        if (tape > Positive_Dead_Zone){
+        //need to change below because it's for tape measure motor, which doesn't have encoders
 
-        } else if (tape < Negative_Dead_Zone){
+        double tapeValue = -gamepad2.right_stick_y;
+
+        double tapePower = tapeValue * tapeValue;
+
+        if (gamepad2.right_stick_y > Positive_Dead_Zone){
+            //run at scaled power
+
+            tapeMotor.setPower(tapePower * tapeMaxPower);
+        }
+        else if (gamepad2.right_stick_y < Negative_Dead_Zone){
+
+            tapeMotor.setPower(-tapePower * tapeMaxPower);
 
         }
 
 
-
+       // ***************************************8
     }
     // code to control all the various servos
  public void handle_servos() {
-
+//first 2 are the noodles
      if (gamepad2.left_bumper){
          telemetry.addData("Left bumper : " , "true");
-         if (leftPressedLastTime) {
+         if (!leftPressedLastTime) {                            //got rid of empty if
+             // wasn't pressed last time, so toggle left
+             ++blueCount;
+             telemetry.addData("Left bumper count : ", blueCount);
+             leftPressedLastTime = true;
+        /* if (leftPressedLastTime) {
              //don't do anything more
          } else {
              // wasn't pressed last time, so toggle left
              ++blueCount;
              telemetry.addData("Left bumper count : ", blueCount);
-             leftPressedLastTime = true;
+             leftPressedLastTime = true;*/
          }
      } else {
          leftPressedLastTime = false;
@@ -274,9 +291,7 @@ public class TeleOp1 extends OpMode {
      }
      if (gamepad2.right_bumper) {
          telemetry.addData("Right bumper : ", "true");
-         if (rightPressedLastTime) {
-             //don't do anything more
-         } else {
+         if (!rightPressedLastTime) {                            //got rid of empty if
              // wasn't pressed last time, so toggle right
              ++redCount;
              telemetry.addData("Right bumper count : ", redCount);
@@ -286,7 +301,6 @@ public class TeleOp1 extends OpMode {
          rightPressedLastTime = false;
          telemetry.addData("Right bumper : ", "false");
      }
-
          if (redCount == Math.floor(redCount / 2) * 2) {
 
              telemetry.addData("noodle1 : ", "Red noodle down");
@@ -319,36 +333,27 @@ public class TeleOp1 extends OpMode {
      */
          // lock servos
          if (gamepad2.a) {
-             if (shoulderRatchetLocked) {
-
-             } else {
+             if (!shoulderRatchetLocked){                            //got rid of empty if
                  shoulderRatchet.setPosition(shoulderRatchetClosed);
                  shoulderRatchetLocked = true;
              }
          }
-
          if (gamepad2.x) {
-             if (tapeRatchetLocked) {
-
-             } else {
+             if (!tapeRatchetLocked) {                              //got rid of empty if
                  tapeRatchet.setPosition(tapeRatchedClosed);
                  tapeRatchetLocked = true;
              }
          }
          // unlock servos
          if (gamepad2.b) {
-             if (!shoulderRatchetLocked) {
-
-             } else {
+             if (shoulderRatchetLocked) {                            //got rid of empty if
              //    shoulderMotor.setTargetPosition(shoulderMotor.getCurrentPosition() - unlockincrement);
                  shoulderRatchet.setPosition(shoulderRatchetOpen);
                  shoulderRatchetLocked = false;
              }
          }
          if (gamepad2.y) {
-             if (!tapeRatchetLocked) {
-
-             } else {
+             if (tapeRatchetLocked) {                              //got rid of empty if
              //    tapeMotor.setTargetPosition(tapeMotor.getCurrentPosition() - unlockincrement);
                  tapeRatchet.setPosition(tapeRatchetOpen);
                  tapeRatchetLocked = false;
